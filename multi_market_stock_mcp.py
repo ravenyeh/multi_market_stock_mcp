@@ -835,5 +835,28 @@ async def compare_multi_market_stocks(params: MultiMarketStockQueryInput) -> str
 
 # ==================== 主程式 ====================
 
+def main():
+    """主程式入口點 - 安全處理 event loop"""
+    import sys
+
+    # 方法 1: 嘗試使用 nest_asyncio（如果已安裝）
+    try:
+        import nest_asyncio
+        nest_asyncio.apply()
+    except ImportError:
+        pass
+
+    # 方法 2: 檢查是否已有運行中的 event loop
+    try:
+        loop = asyncio.get_running_loop()
+        # 如果已有 loop，使用 run_async()
+        import sys
+        print("Detected existing event loop, using run_async()", file=sys.stderr)
+        # 在已有的 loop 中運行
+        asyncio.ensure_future(mcp.run_async())
+    except RuntimeError:
+        # 沒有 loop，使用標準的 run()
+        mcp.run()
+
 if __name__ == "__main__":
-    mcp.run()
+    main()
