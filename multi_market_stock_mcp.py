@@ -13,10 +13,19 @@ try:
     import nest_asyncio
     nest_asyncio.apply()
 except ImportError:
-    # 如果沒有安裝 nest-asyncio，打印警告但繼續執行
+    # 如果沒有安裝 nest-asyncio，自動安裝
     import sys
-    print("WARNING: nest-asyncio not installed. May encounter event loop issues.", file=sys.stderr)
-    print("Install with: pip install nest-asyncio", file=sys.stderr)
+    import subprocess
+    print("nest-asyncio not found. Installing...", file=sys.stderr)
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "nest-asyncio"])
+        import nest_asyncio
+        nest_asyncio.apply()
+        print("nest-asyncio installed and applied successfully.", file=sys.stderr)
+    except Exception as e:
+        print(f"ERROR: Failed to install nest-asyncio: {e}", file=sys.stderr)
+        print("Please manually install: pip install nest-asyncio", file=sys.stderr)
+        sys.exit(1)
 
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ConfigDict
