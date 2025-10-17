@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "taiwan-stock": {
+      "command": "python",
+      "args": [
+		"-X",
+		"utf8",
+        "D:\\00_Projects\\Claude\\Skills_MCP_Builder_StockAnalysis\\multi_market_stock_mcp.py"
+      ],
+      "env": {},
+      "description": "股票即時分析 MCP 服務器 - 提供即時報價、技術分析和買賣建議"
+    }
+  }
+}
