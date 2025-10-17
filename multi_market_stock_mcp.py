@@ -6,6 +6,18 @@ Multi-Market Stock Real-Time Analysis MCP Server
 Supports Taiwan Stock, China A-Share, and US Stock markets.
 """
 
+# ==================== 重要：必須在導入 MCP 之前應用 nest-asyncio ====================
+# 這解決了 "Already running asyncio in this thread" 錯誤
+# 該錯誤發生在 FastMCP 內部的 cli.py 嘗試在已有事件循環的環境中創建新循環
+try:
+    import nest_asyncio
+    nest_asyncio.apply()
+except ImportError:
+    # 如果沒有安裝 nest-asyncio，打印警告但繼續執行
+    import sys
+    print("WARNING: nest-asyncio not installed. May encounter event loop issues.", file=sys.stderr)
+    print("Install with: pip install nest-asyncio", file=sys.stderr)
+
 from mcp.server.fastmcp import FastMCP
 from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List, Dict, Any, Literal
