@@ -84,8 +84,8 @@ class MultiMarketStockQueryInput(BaseModel):
     stock_codes: List[str] = Field(
         ...,
         description="股票代碼列表，可混合不同市場，例如：['2330', 'AAPL', '600519']",
-        min_items=1,
-        max_items=20
+        min_length=1,
+        max_length=20
     )
     response_format: ResponseFormat = Field(
         default=ResponseFormat.MARKDOWN,
@@ -269,8 +269,10 @@ async def get_china_stock_quote(stock_code: str) -> Dict[str, Any]:
             # 構建標準化數據結構
             # 騰訊財經格式：
             # 0:未知 1:名稱 2:代碼 3:當前價 4:昨收 5:開盤 6:成交量(手) 7:外盤 8:內盤
-            # 9-13:買一 14-18:買二 19-23:買三 24-28:買四 29-33:買五
-            # 34-38:賣一 39-43:賣五 ... 37:成交額(萬)
+            # 9-10:買一價量 11-12:賣一價量 13-14:買二價量 15-16:賣二價量
+            # 17-18:買三價量 19-20:賣三價量 21-22:買四價量 23-24:賣四價量
+            # 25-26:買五價量 27-28:賣五價量
+            # 30:時間 31:漲跌額 32:漲跌% 33:最高 34:最低 37:成交額(萬)
             stock_info = {
                 'market': 'china',
                 'market_name': '中國A股',
@@ -283,15 +285,17 @@ async def get_china_stock_quote(stock_code: str) -> Dict[str, Any]:
                 'l': parts[34],  # 最低價
                 'v': str(int(float(parts[6]) / 100)) if parts[6] else '0',  # 成交量（手轉張）
                 'value': parts[37],  # 成交額(萬)
-                # 買五檔 (價格_數量)
-                'b': '_'.join([parts[9], parts[14], parts[19], parts[24], parts[29]]),   # 買盤價格
-                'g': '_'.join([parts[10], parts[15], parts[20], parts[25], parts[30]]),  # 買盤量
-                # 賣五檔
-                'a': '_'.join([parts[11], parts[16], parts[21], parts[26], parts[31]]),  # 賣盤價格
-                'f': '_'.join([parts[12], parts[17], parts[22], parts[27], parts[32]]),  # 賣盤量
+                # 買五檔 (價格)
+                'b': '_'.join([parts[9], parts[13], parts[17], parts[21], parts[25]]),   # 買一到五價
+                # 買五檔 (數量)
+                'g': '_'.join([parts[10], parts[14], parts[18], parts[22], parts[26]]),  # 買一到五量
+                # 賣五檔 (價格)
+                'a': '_'.join([parts[11], parts[15], parts[19], parts[23], parts[27]]),  # 賣一到五價
+                # 賣五檔 (數量)
+                'f': '_'.join([parts[12], parts[16], parts[20], parts[24], parts[28]]),  # 賣一到五量
                 'tlong': str(int(datetime.now().timestamp() * 1000)),  # 時間戳
-                'date': parts[30] if len(parts) > 30 else '',  # 日期
-                'time': parts[31] if len(parts) > 31 else ''   # 時間
+                'date': parts[30] if len(parts) > 30 else '',  # 日期時間
+                'time': parts[31] if len(parts) > 31 else ''   # 漲跌額
             }
 
             return stock_info
